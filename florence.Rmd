@@ -58,16 +58,21 @@ dir()
 #indicamos el directorio de trabajo
 setwd("~/Documentos/R/Github/florence")
 ```
+
+
 ## .- Carga de librerias
 ```{r Carga librerias}
 # Importamos las librerias a utilizar
 
-packages <- c( "rio","csvy", "feather", "fst", "hexView", "readODS", "rmatio", "magrittr","dplyr", "ggfortify", "zoo","GGally","ggplot2","forecast","tidyquant","dygraphs","psych")
+packages <- c( "reshape2","rio","csvy", "feather", "fst", "hexView", "readODS", "rmatio", "magrittr","dplyr", "ggfortify", "zoo","GGally","ggplot2","forecast","tidyquant","dygraphs","psych")
 newpack  = packages[!(packages %in% installed.packages()[,"Package"])]
 
 if(length(newpack)) install.packages(newpack)
 a=lapply(packages, library, character.only=TRUE)
 ```
+
+
+
 ```{r pressure, echo=FALSE}
 raw <- rio::import("https://github.com/rladies/spain_nightingale/raw/master/datos_florence.xlsx")
 ```
@@ -259,15 +264,6 @@ forecast::ggseasonplot(pas1.ts, year.labels=TRUE, year.labels.left=TRUE)
 forecast::ggseasonplot(pas1.ts, year.labels=TRUE, year.labels.left=TRUE, polar = TRUE)
 ```
 
-## Use example: Dow Jones industrial averages and smoothing
-
-djiar data are the daily returns (or percent change) of the Dow Jones Industrial Average (DJIA) from April 20, 2006 to April 20, 2016. It is easy to spot the financial crisis of 2008 in the figure. The data shown in Figure 1.4 are typical of return data. The mean of the series appears to be stable with an average return of approximately zero, however, highly volatile (variable) periods tend to be clustered together. A problem in the analysis of these type of financial data is to forecast the volatility of future returns.
-
-```{r}
-
-djia.return <- xts::diff.xts(log(df$zymotic))  #diff:calcula la diferencia entre el valor actual y el valor anterior
-plot(djia.return)
-```
 
 
 
@@ -315,10 +311,11 @@ dplyr::tibble(time = zoo::index(pas2.ts),
 plot(fit)
 ```
 ```{r}
-library(reshape2)
-meltdf <- melt(df,id="fecha")
-ggplot(meltdf,aes(x=Time,y=value,colour=variable,group=variable)) + geom_line()
+# library(reshape2)
+meltdf <- reshape2::melt(d,id="fecha")
+ggplot(meltdf,aes(x=fecha,y=value,colour=variable,group=variable)) + geom_line()
 ```
+
 ## tslm rewritten
 ```{r}
 # autoplot of a forecast object
@@ -418,35 +415,7 @@ df %>%
 ```
 
 
-```{r}
-# default theme
-plot + geom_col() +
-  theme_gray()
 
-plot + geom_line() +
-  geom_point() +
-  theme_gray()
-# theme_bw()
-plot + geom_col()+
-  theme_bw()
-
-plot + geom_line() +
-  geom_point() +
-  theme_bw()
-
-# theme_minimal()
-plot + geom_col() +
-  theme_minimal()
-
-# theme_wsj()
-library(ggthemes)
-plot + geom_col() +
-  theme_wsj() +
-  scale_fill_manual(values = wsj_pal(palette = "colors6")(3)) +
-  scale_color_manual(values = wsj_pal(palette = "colors6")(3))
-
-
-```
 ```{r}
 
 dygraph(pass.ts, main = "New Haven Temperatures") %>%
@@ -461,23 +430,14 @@ dygraph(pass.ts, main="Muertes") %>%
   dyShading(from="1800-1-1", to="1855-1-1", color="#FFE6E6") %>%
   dyShading(from="1856-1-1", to="2000-1-1", color="#CCEBD6")
 ```
-# Graficos animados
+# Graficos 
 ```{r}
-p <- ggplot(
-  d, 
-  aes(x = zymotic, y=heridas, size = tamaño)
-  ) +
+p <- ggplot(d, aes(x = zymotic, y=heridas, size = tamaño)) +
   geom_point(show.legend = FALSE, alpha = 0.7) +
   scale_color_viridis_d() +
   scale_size(range = c(2, 12)) +
   scale_x_log10() +
   labs(x = "zymotic", y = "heridas100año")
 p
-```
-```{r}
-d$date <-as.Date(d$fecha, format = "%m %Y")
-p + transition_time(fecha) +
-  labs(title = "fecha: {frame_time}")
 
-```
 
